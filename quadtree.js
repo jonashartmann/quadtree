@@ -21,23 +21,39 @@
 
 	/**
 	 * Finds the index of the node which an item belongs to
-	 * We count clockwise from the left top node
+	 * Node indexes are as below:
 	 * 0 | 1
 	 * -----
 	 * 2 | 3
 	 * Return	0-3 or -1 if not completely inside boundaries
 	 */
 	QuadTree.prototype.getNodeIndex = function getNodeIndex (item) {
-		var index = -1;
-		var xHalf = this.bounds.x + (this.bounds.width / 2);
-		var yHalf = this.bounds.y + (this.bounds.height / 2);
-		var onLeftQuad = false,
-			onRightQuad = false;
+		var index = -1,
+			xHalf = this.bounds.x + (this.bounds.width / 2),
+			yHalf = this.bounds.y + (this.bounds.height / 2),
+			xLimit = this.bounds.x + this.bounds.width,
+			yLimit = this.bounds.y + this.bounds.height,
 
-		onLeftQuad = (item.x + item.width < xHalf);
-		onRightQuad = (item.x > xHalf);
+			onLeftQuad = (item.x >= this.bounds.x && item.x + item.width < xHalf),
+			onRightQuad = (item.x > xHalf && item.x + item.width <= xLimit),
+			onTopQuad = (item.y >= this.bounds.y && item.y + item.height < yHalf),
+			onBottomQuad = (item.y > yHalf && item.y + item.height <= yLimit);
 
-		// TODO: continue logic
+		if (onLeftQuad && onTopQuad) {
+			return 0;
+		}
+		if (onRightQuad && onTopQuad) {
+			return 1;
+		}
+		if (onLeftQuad && onBottomQuad) {
+			return 2;
+		}
+		if (onRightQuad && onBottomQuad) {
+			return 3;
+		}
+
+		// Did not fit in any of the quads.
+		return -1;
 	};
 
 	window.QuadTree = QuadTree;
