@@ -129,5 +129,19 @@
 		// TODO: implement
 	};
 
+	/**
+	 * Clear all items from the QuadTree, including all sub nodes
+	 */
+	QuadTree.prototype.clear = function clear() {
+		this.items = [];
+		for (var i = 0; i < 4; i++) {
+			if (this.nodes[i]) {
+				this.nodes[i].clear();
+				delete this.nodes[i];
+			}
+		}
+		this.nodes.length = 0;
+	};
+
 	window.QuadTree = QuadTree;
 })(window);

@@ -232,13 +232,13 @@ describe("QuadTree", function() {
 
   describe("on split ", function () {
     beforeEach(function () {
-      spyOn(tree, 'reindexTree');
       tree = new QuadTree({
         x: 0,
         y: 0,
         width: 100,
         height: 100
       }, 1);
+      spyOn(tree, 'reindexTree');
       tree.splitTree();
     });
 
@@ -253,6 +253,9 @@ describe("QuadTree", function() {
     it("should have the same maximum amount", function () {
       spyOn(tree.nodes[0], 'splitTree');
       tree.insert({x: 0, y:1, width:5, height:5});
+      expect(tree.nodes[0].items.length).toBe(1);
+      // test a split of the first node
+      tree.insert({x: 0, y:2, width:5, height:5});
       expect(tree.nodes[0].splitTree).toHaveBeenCalled();
     });
   });
@@ -312,6 +315,30 @@ describe("QuadTree", function() {
       expect(tree.nodes[2].items.length).toBe(2);
       expect(tree.nodes[3].items.length).toBe(2);
     });
+  });
+
+  it("should remove all items and nodes on clear", function () {
+    tree.splitTree();
+    expect(tree.nodes.length).toBe(4);
+    tree.insert({
+      x: 45,
+      y: 66,
+      width: 10,
+      height: 10
+    });
+    expect(tree.items.length).toBe(1);
+
+    tree.insert({
+      x: 0,
+      y: 1,
+      width: 10,
+      height: 10
+    });
+    expect(tree.nodes[0].items.length).toBe(1);
+
+    tree.clear();
+    expect(tree.items.length).toBe(0);
+    expect(tree.nodes.length).toBe(0);
   });
 
   //demonstrates use of expected exceptions
