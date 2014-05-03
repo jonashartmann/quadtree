@@ -6,7 +6,8 @@
 		this.stage = new Kinetic.Stage({
 			container: 'container',
 			width: 800,
-			height: 600
+			height: 600,
+			draggable: true
 		});
 		this.mainLayer = new Kinetic.Layer();
 		this.setupQuadTree(this.mainLayer);
@@ -52,7 +53,8 @@
 			var x = mousepos.x;
 			var y = mousepos.y;
 			console.log('(%s, %s)', x, y);
-			self.addPoint(x, y);
+			// self.addPoint(x, y);
+			self.addRandomPoints(10, x, y);
 		});
 		layer.add(qtShape);
 	};
@@ -69,8 +71,7 @@
 			y: point.y,
 			width: point.width,
 			height: point.height,
-			fill: 'green',
-			stroke: 'blue',
+			stroke: 'red',
 			strokeWidth: 1,
 		});
 		this.mainLayer.add(p);
@@ -79,5 +80,65 @@
 		this.mainLayer.draw();
 	};
 
+	/**
+	 * Add num random points around x and y coordinates
+	 */
+	Demo.prototype.addRandomPoints = function addRandomPoints(num, x, y) {
+		var minX = (x - 100) < 0 ? 0 : (x - 100);
+		var maxX = (x + 100) > 800 ? 800 : (x + 100);
+		var minY = (y - 100) < 0 ? 0 : (y - 100);
+		var maxY = (y + 100) > 600 ? 800 : (y + 100);
+		for (var i = 0; i < num; i++) {
+			this.addPoint(
+				getRandomArbitrary(minX, maxX),
+				getRandomArbitrary(minY, maxY)
+			);
+		}
+	};
+
+	Demo.prototype.zoom = function zoom(zoomAmount) {
+		var origin = {
+			x: this.mainLayer.offsetX(),
+			y: this.mainLayer.offsetY()
+		};
+		var scale = this.mainLayer.scale().x;
+		var newScale = scale + zoomAmount;
+		if (newScale < 1) {
+			newScale = 1;
+		}
+
+		var mpos = this.stage.getPointerPosition();
+
+		origin.x = origin.x + (mpos.x / scale) - (mpos.x / newScale);
+		origin.y = origin.y + (mpos.y / scale) - (mpos.y / newScale);
+
+		this.mainLayer.offsetX(origin.x);
+		this.mainLayer.offsetY(origin.y);
+
+		this.mainLayer.scale({
+			x: newScale,
+			y: newScale
+		});
+		this.mainLayer.draw();
+	};
+
+	// Returns a random number between min and max
+	function getRandomArbitrary(min, max) {
+		return Math.random() * (max - min) + min;
+	}
+
 	var demo = new Demo();
+
+	document.addEventListener('keyup', function onKeyUp (e) {
+		var keyCode = e.keyCode ? e.keyCode : e.which;
+		console.log('Key up!', keyCode);
+		if (keyCode === 187) {
+			// + sign
+			demo.zoom(0.1);
+		}
+		if (keyCode === 189) {
+			// - sign
+			demo.zoom(-0.1);
+		}
+	});
 })();
