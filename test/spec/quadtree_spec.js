@@ -430,6 +430,38 @@ describe("QuadTree", function() {
       expect(items.length).toBe(8);
     });
 
+    it("should retrieve from sub children", function () {
+      for (var i = 0; i < 2; i++) {
+        for (var j = 0; j < 2; j++) {
+          tree.insert({
+            id: 'sub' + i + '' + j,
+            x: i*55,
+            y: j*55,
+            width: 10,
+            height: 10
+          });
+          tree.insert({
+            id: 'sub' + i + '' + j + '2',
+            x: i*55 + 1,
+            y: j*55 + 1,
+            width: 10,
+            height: 10
+          });
+        }
+      }
+
+      // debugger;
+      var items = tree.retrieve({
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10
+      });
+
+      expect(tree.nodes[0].nodes[0].nodes[0].items.length).toBe(4);
+      expect(items.length).toBe(4);
+    });
+
     it("should retrieve all children and not fitting items", function () {
       tree.insert({
         id: 'notfit',

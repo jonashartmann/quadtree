@@ -144,18 +144,21 @@
 	 */
 	QuadTree.prototype.retrieve = function retrieve(item) {
 		var index = this.getNodeIndex(item);
+		// debugger;
 		var result = [];
 		if (index === -1) {
 			result = this.items.slice(0);
 			if (this.nodes.length > 0) {
-				result = _concatenateArrays(result, this.nodes[0].items);
-				result = _concatenateArrays(result, this.nodes[1].items);
-				result = _concatenateArrays(result, this.nodes[2].items);
-				result = _concatenateArrays(result, this.nodes[3].items);
+				result = _concatenateArrays(result, this.nodes[0].retrieve(item));
+				result = _concatenateArrays(result, this.nodes[1].retrieve(item));
+				result = _concatenateArrays(result, this.nodes[2].retrieve(item));
+				result = _concatenateArrays(result, this.nodes[3].retrieve(item));
 			}
 		} else {
 			if (this.nodes[index]) {
-				result = _concatenateArrays(result, this.nodes[index].items);
+				result = _concatenateArrays(result, this.nodes[index].retrieve(item));
+			} else {
+				result = this.items.slice(0);
 			}
 		}
 		return result;
