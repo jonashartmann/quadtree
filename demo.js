@@ -107,8 +107,27 @@
 		});
 
 		console.log('Found points: ', points);
+		var linePoints = [],
+			first;
 		for (var i = 0; i < points.length; i++) {
+			if (i === 0) {
+				first = points[i];
+			}
 			points[i].rect.stroke('green');
+			linePoints.push(points[i].x - x);
+			linePoints.push(points[i].y - y);
+		}
+		if (points.length > 0) {
+			linePoints.push(first.x - x);
+			linePoints.push(first.y - y);
+			var l = new Kinetic.Line({
+				x: x,
+				y: y,
+				points: linePoints,
+				stroke: 'blue',
+				strokeWidth: 1
+			});
+			this.mainLayer.add(l);
 		}
 		this.mainLayer.draw();
 	};
