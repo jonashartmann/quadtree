@@ -53,7 +53,7 @@
 			var x = mousepos.x;
 			var y = mousepos.y;
 			console.log('(%s, %s)', x, y);
-			// self.addPoint(x, y);
+
 			self.addRandomPoints(10, x, y);
 		});
 		layer.add(qtShape);
@@ -74,9 +74,10 @@
 			stroke: 'red',
 			strokeWidth: 1,
 		});
-		this.mainLayer.add(p);
+		point.rect = p;
 		this.qt.insert(point);
-		// refresh layer
+
+		this.mainLayer.add(p);
 		this.mainLayer.draw();
 	};
 
@@ -94,6 +95,22 @@
 				getRandomArbitrary(minY, maxY)
 			);
 		}
+	};
+
+	Demo.prototype.changePointsColor = function changePointsColor(x, y) {
+		console.log('Changing color of near (%f, %f)', x, y);
+		var points = this.qt.retrieve({
+			x: x,
+			y: y,
+			width: 1,
+			height: 1
+		});
+
+		console.log('Found points: ', points);
+		for (var i = 0; i < points.length; i++) {
+			points[i].rect.stroke('green');
+		}
+		this.mainLayer.draw();
 	};
 
 	Demo.prototype.zoom = function zoom(zoomAmount) {
@@ -131,7 +148,7 @@
 
 	document.addEventListener('keyup', function onKeyUp (e) {
 		var keyCode = e.keyCode ? e.keyCode : e.which;
-		console.log('Key up!', keyCode);
+		// console.log('Key up!', keyCode);
 		if (keyCode === 187) {
 			// + sign
 			demo.zoom(0.1);
@@ -140,5 +157,14 @@
 			// - sign
 			demo.zoom(-0.1);
 		}
+		if (keyCode === 71) {
+			var mpos = demo.stage.getPointerPosition();
+			demo.changePointsColor(mpos.x, mpos.y);
+		}
+	});
+
+	document.addEventListener('keydown', function onKeyDown (e) {
+		var keyCode = e.keyCode ? e.keyCode : e.which;
+		// console.log('Key down!', keyCode);
 	});
 })();
