@@ -1,1 +1,1 @@
-QuadTree implementation in Javascript (not ready yet)
+QuadTree implementation in Javascript

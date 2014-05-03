@@ -89,26 +89,26 @@
 		this.nodes.push(new QuadTree({
 			x: this.bounds.x,
 			y: this.bounds.y,
-			width: this.bounds.width / 4,
-			height: this.bounds.height / 4
+			width: this.bounds.width / 2,
+			height: this.bounds.height / 2
 		}, MAX_ITEMS));
 		this.nodes.push(new QuadTree({
 			x: this.bounds.x + (this.bounds.width / 2),
 			y: this.bounds.y,
-			width: this.bounds.width / 4,
-			height: this.bounds.height / 4
+			width: this.bounds.width / 2,
+			height: this.bounds.height / 2
 		}, MAX_ITEMS));
 		this.nodes.push(new QuadTree({
 			x: this.bounds.x,
 			y: this.bounds.y + (this.bounds.height / 2),
-			width: this.bounds.width / 4,
-			height: this.bounds.height / 4
+			width: this.bounds.width / 2,
+			height: this.bounds.height / 2
 		}, MAX_ITEMS));
 		this.nodes.push(new QuadTree({
 			x: this.bounds.x + (this.bounds.width / 2),
 			y: this.bounds.y + (this.bounds.height / 2),
-			width: this.bounds.width / 4,
-			height: this.bounds.height / 4
+			width: this.bounds.width / 2,
+			height: this.bounds.height / 2
 		}, MAX_ITEMS));
 
 		this.reindexTree();
@@ -125,8 +125,40 @@
 		}
 	};
 
-	QuadTree.prototype.retrieve = function retrieve() {
-		// TODO: implement
+	/**
+	 * Concatenate both arrays.
+	 * All items from the array "from" will be pushed
+	 * into the array "res".
+	 * Returns the "res" array
+	 */
+	function _concatenateArrays(res, from) {
+		for (var i = 0; i < from.length; i++) {
+			res.push(from[i]);
+		}
+		return res;
+	}
+
+	/**
+	 * Retrieve all items that are in the same quad of the one given.
+	 * In other words: all items that could collide with the one given.
+	 */
+	QuadTree.prototype.retrieve = function retrieve(item) {
+		var index = this.getNodeIndex(item);
+		var result = [];
+		if (index === -1) {
+			result = this.items.slice(0);
+			if (this.nodes.length > 0) {
+				result = _concatenateArrays(result, this.nodes[0].items);
+				result = _concatenateArrays(result, this.nodes[1].items);
+				result = _concatenateArrays(result, this.nodes[2].items);
+				result = _concatenateArrays(result, this.nodes[3].items);
+			}
+		} else {
+			if (this.nodes[index]) {
+				result = _concatenateArrays(result, this.nodes[index].items);
+			}
+		}
+		return result;
 	};
 
 	/**

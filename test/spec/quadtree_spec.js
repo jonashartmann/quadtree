@@ -258,6 +258,29 @@ describe("QuadTree", function() {
       tree.insert({x: 0, y:2, width:5, height:5});
       expect(tree.nodes[0].splitTree).toHaveBeenCalled();
     });
+
+    it("should distribute correct bounds", function () {
+      expect(tree.bounds.x).toBe(0);
+      expect(tree.bounds.y).toBe(0);
+      expect(tree.bounds.width).toBe(100);
+      expect(tree.bounds.height).toBe(100);
+      expect(tree.nodes[0].bounds.x).toBe(0);
+      expect(tree.nodes[0].bounds.y).toBe(0);
+      expect(tree.nodes[0].bounds.width).toBe(50);
+      expect(tree.nodes[0].bounds.height).toBe(50);
+      expect(tree.nodes[1].bounds.x).toBe(50);
+      expect(tree.nodes[1].bounds.y).toBe(0);
+      expect(tree.nodes[1].bounds.width).toBe(50);
+      expect(tree.nodes[1].bounds.height).toBe(50);
+      expect(tree.nodes[2].bounds.x).toBe(0);
+      expect(tree.nodes[2].bounds.y).toBe(50);
+      expect(tree.nodes[2].bounds.width).toBe(50);
+      expect(tree.nodes[2].bounds.height).toBe(50);
+      expect(tree.nodes[3].bounds.x).toBe(50);
+      expect(tree.nodes[3].bounds.y).toBe(50);
+      expect(tree.nodes[3].bounds.width).toBe(50);
+      expect(tree.nodes[3].bounds.height).toBe(50);
+    });
   });
 
   describe("on reindexing the tree ", function () {
@@ -339,6 +362,92 @@ describe("QuadTree", function() {
     tree.clear();
     expect(tree.items.length).toBe(0);
     expect(tree.nodes.length).toBe(0);
+  });
+
+  describe("on retrieval ", function () {
+    beforeEach(function () {
+      tree = new QuadTree({
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100
+      }, 2);
+      for (var i = 0; i < 2; i++) {
+        for (var j = 0; j < 2; j++) {
+          tree.insert({
+            id: i + '' + j,
+            x: i*55,
+            y: j*55,
+            width: 10,
+            height: 10
+          });
+          tree.insert({
+            id: i + '' + j + '2',
+            x: i*55 + 1,
+            y: j*55 + 1,
+            width: 10,
+            height: 10
+          });
+        }
+      }
+
+      expect(tree.nodes.length).toBe(4);
+      expect(tree.nodes[0].items.length).toBe(2);
+    });
+
+    it("should retrieve from correct node", function () {
+      var items = tree.retrieve({
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10
+      });
+
+      expect(items.length).toBe(2);
+      expect(items[0].id).toBe("00");
+      expect(items[1].id).toBe("002");
+
+      items = tree.retrieve({
+        x: 55,
+        y: 15,
+        width: 10,
+        height: 10
+      });
+
+      expect(items.length).toBe(2);
+      expect(items[0].id).toBe("10");
+      expect(items[1].id).toBe("102");
+    });
+
+    it("should retrieve all children", function () {
+      var items = tree.retrieve({
+        x: 45,
+        y: 0,
+        width: 10,
+        height: 10
+      });
+
+      expect(items.length).toBe(8);
+    });
+
+    it("should retrieve all children and not fitting items", function () {
+      tree.insert({
+        id: 'notfit',
+        x: 45,
+        y: 45,
+        width: 10,
+        height: 10
+      });
+      var items = tree.retrieve({
+        x: 46,
+        y: 0,
+        width: 10,
+        height: 10
+      });
+
+      expect(tree.items.length).toBe(1);
+      expect(items.length).toBe(9);
+    });
   });
 
   //demonstrates use of expected exceptions
