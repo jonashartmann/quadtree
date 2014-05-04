@@ -149,19 +149,21 @@
 			linePoints.push(points[i].y - y);
 		}
 		if (points.length > 0) {
-			linePoints.push(first.x - x);
-			linePoints.push(first.y - y);
+			// linePoints.push(first.x - x);
+			// linePoints.push(first.y - y);
 			var l = new Kinetic.Line({
 				x: x,
 				y: y,
 				points: linePoints,
+				fill: 'green',
 				stroke: 'blue',
-				strokeWidth: 1
+				strokeWidth: 1,
+				closed: true
 			});
 			this.pointsGroup.add(l);
 		}
 
-		this.mainLayer.draw();
+		this.stage.draw();
 	};
 
 	Demo.prototype.addRandomBalls = function addRandomBalls(num, x, y) {
@@ -247,7 +249,7 @@
 		this.pointsGroup.destroyChildren();
 		this.ballsGroup.destroyChildren();
 		this.resetZoom();
-		this.mainLayer.draw();
+		this.stage.draw();
 	};
 
 	/**
