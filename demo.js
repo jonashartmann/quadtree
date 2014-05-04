@@ -1,5 +1,6 @@
 (function() {
 	'use strict';
+	var points, balls;
 
 	var Demo = function Demo() {
 		// Start a new demo
@@ -7,13 +8,38 @@
 			container: 'container',
 			width: 800,
 			height: 600,
-			draggable: true
+			draggable: false
 		});
 		this.mainLayer = new Kinetic.Layer();
 		this.setupQuadTree(this.mainLayer);
+
 		this.pointsGroup = new Kinetic.Group();
-		this.mainLayer.add(this.pointsGroup);
+		this.ballsGroup = new Kinetic.Layer();
+
+		// Start with points as default
+		this.pointsDemo();
+
 		this.stage.add(this.mainLayer);
+	};
+
+	Demo.prototype.pointsDemo = function pointsDemo() {
+		this.clear();
+		this.ballsGroup.remove();
+		this.mainLayer.add(this.pointsGroup);
+		this.mainLayer.draw();
+
+		points = true;
+		balls = false;
+	};
+
+	Demo.prototype.ballsDemo = function ballsDemo() {
+		this.clear();
+		this.pointsGroup.remove();
+		this.stage.add(this.ballsGroup);
+		this.stage.draw();
+
+		balls = true;
+		points = false;
 	};
 
 	Demo.prototype.setupQuadTree = function setupQuadTree(layer) {
@@ -27,7 +53,6 @@
 
 		var recursiveDrawQt = function recursiveDrawQt (qt, context) {
 			if (!qt) { return; }
-			// console.log('drawing qt: ', qt);
 			context.rect(
 				qt.bounds.x,
 				qt.bounds.y,
@@ -35,7 +60,6 @@
 				qt.bounds.height
 			);
 			for (var i = 0; i < qt.nodes.length; i++) {
-				// console.log('drawing node: ', i);
 				recursiveDrawQt(qt.nodes[i], context);
 			}
 		};
@@ -56,7 +80,12 @@
 			var y = mousepos.y;
 			console.log('(%s, %s)', x, y);
 
-			self.addRandomPoints(10, x, y);
+			if (points) {
+				self.addRandomPoints(10, x, y);
+			}
+			if (balls) {
+				self.addRandomBalls(10, x, y);
+			}
 		});
 		layer.add(qtShape);
 	};
@@ -76,7 +105,7 @@
 			stroke: 'red',
 			strokeWidth: 1,
 		});
-		point.rect = p;
+		point.shape = p;
 		this.qt.insert(point);
 
 		this.pointsGroup.add(p);
@@ -115,7 +144,7 @@
 			if (i === 0) {
 				first = points[i];
 			}
-			points[i].rect.stroke('green');
+			points[i].shape.stroke('green');
 			linePoints.push(points[i].x - x);
 			linePoints.push(points[i].y - y);
 		}
@@ -133,6 +162,54 @@
 		}
 
 		this.mainLayer.draw();
+	};
+
+	Demo.prototype.addRandomBalls = function addRandomBalls(num, x, y) {
+		var minX = (x - 100) < 0 ? 0 : (x - 100);
+		var maxX = (x + 100) > 800 ? 800 : (x + 100);
+		var minY = (y - 100) < 0 ? 0 : (y - 100);
+		var maxY = (y + 100) > 600 ? 800 : (y + 100);
+		for (var i = 0; i < num; i++) {
+			this.addBall(
+				getRandomArbitrary(minX, maxX),
+				getRandomArbitrary(minY, maxY)
+			);
+		}
+	};
+
+	Demo.prototype.addBall = function addBall(x, y) {
+		var ball = {
+			x: x,
+			y: y,
+			radius: 5,
+			// for QuadTree
+			width: 10,
+			height: 10
+		};
+
+		var circle = new Kinetic.Circle({
+			x: ball.x,
+			y: ball.y,
+			radius: ball.radius,
+			fill: 'red',
+			stroke: 'black',
+			strokeWidth: 2
+		});
+		ball.shape = circle;
+
+		this.qt.insert(ball);
+
+		this.ballsGroup.add(circle);
+
+		this.stage.draw();
+	};
+
+	Demo.prototype.startAnimation = function startAnimation() {
+		this.anim.start();
+	};
+
+	Demo.prototype.stopAnimation = function stopAnimation() {
+		this.anim.stop();
 	};
 
 	Demo.prototype.zoom = function zoom(zoomAmount) {
@@ -168,10 +245,14 @@
 	Demo.prototype.clear = function clear() {
 		this.qt.clear();
 		this.pointsGroup.destroyChildren();
+		this.ballsGroup.destroyChildren();
 		this.resetZoom();
 		this.mainLayer.draw();
 	};
 
+	/**
+	 * Reset the zoom and scale
+	 */
 	Demo.prototype.resetZoom = function() {
 		this.mainLayer.offsetX(0);
 		this.mainLayer.offsetY(0);
