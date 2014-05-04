@@ -11,6 +11,8 @@
 		});
 		this.mainLayer = new Kinetic.Layer();
 		this.setupQuadTree(this.mainLayer);
+		this.pointsGroup = new Kinetic.Group();
+		this.mainLayer.add(this.pointsGroup);
 		this.stage.add(this.mainLayer);
 	};
 
@@ -77,7 +79,7 @@
 		point.rect = p;
 		this.qt.insert(point);
 
-		this.mainLayer.add(p);
+		this.pointsGroup.add(p);
 		this.mainLayer.draw();
 	};
 
@@ -127,8 +129,9 @@
 				stroke: 'blue',
 				strokeWidth: 1
 			});
-			this.mainLayer.add(l);
+			this.pointsGroup.add(l);
 		}
+
 		this.mainLayer.draw();
 	};
 
@@ -158,6 +161,28 @@
 		this.mainLayer.draw();
 	};
 
+	/**
+	 * Clear quad tree and points
+	 * Also reset the zoom and scale
+	 */
+	Demo.prototype.clear = function clear() {
+		this.qt.clear();
+		this.pointsGroup.destroyChildren();
+		this.resetZoom();
+		this.mainLayer.draw();
+	};
+
+	Demo.prototype.resetZoom = function() {
+		this.mainLayer.offsetX(0);
+		this.mainLayer.offsetY(0);
+
+		this.mainLayer.scale({
+			x: 1,
+			y: 1
+		});
+		this.mainLayer.draw();
+	};
+
 	// Returns a random number between min and max
 	function getRandomArbitrary(min, max) {
 		return Math.random() * (max - min) + min;
@@ -177,6 +202,7 @@
 			demo.zoom(-0.1);
 		}
 		if (keyCode === 71) {
+			// g
 			var mpos = demo.stage.getPointerPosition();
 			demo.changePointsColor(mpos.x, mpos.y);
 		}
@@ -186,4 +212,6 @@
 		var keyCode = e.keyCode ? e.keyCode : e.which;
 		// console.log('Key down!', keyCode);
 	});
+
+	window.demo = demo;
 })();
