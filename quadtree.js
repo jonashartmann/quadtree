@@ -126,6 +126,31 @@
 	};
 
 	/**
+	 * Removes an existing item from the quad tree
+	 * It uses object equality (===)
+	 *
+	 * @param object item - item to be removed from the tree
+	 * @return Returns the item if it was found or null
+	 */
+	QuadTree.prototype.remove = function(item) {
+		var index = this.getNodeIndex(item);
+
+		if (index !== -1 && this.nodes[index]) {
+			// Item is found in a child tree, remove it from there
+			return this.nodes[index].remove(item);
+		} else {
+			var i;
+			for (i = 0; i < this.items.length; i++) {
+				if (this.items[i] === item) {
+					return this.items.splice(i, 1);
+				}
+			}
+		}
+
+		return null;
+	};
+
+	/**
 	 * Concatenate both arrays.
 	 * All items from the array "from" will be pushed
 	 * into the array "res".

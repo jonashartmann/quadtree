@@ -482,6 +482,23 @@ describe("QuadTree", function() {
     });
   });
 
+  it("should correctly remove an item", function () {
+    var item = {
+      id: 'notfit',
+      x: 45,
+      y: 45,
+      width: 10,
+      height: 10
+    };
+    tree.insert(item);
+
+    expect(tree.items.length).toBe(1);
+
+    tree.remove(item);
+
+    expect(tree.items.length).toBe(0);
+  });
+
   //demonstrates use of expected exceptions
   // describe("#resume", function() {
   //   it("should throw an exception if song is already playing", function() {
