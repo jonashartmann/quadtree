@@ -49,7 +49,7 @@
 			y: 0,
 			width: 800,
 			height: 600
-		}, 5);
+		}, 20);
 
 		var recursiveDrawQt = function recursiveDrawQt (qt, context) {
 			if (!qt) { return; }
@@ -180,13 +180,14 @@
 	};
 
 	Demo.prototype.addBall = function addBall(x, y) {
+		var self = this;
 		var ball = {
 			x: x,
 			y: y,
 			radius: 5,
 			// for QuadTree
-			width: 10,
-			height: 10
+			width: 5,
+			height: 5
 		};
 
 		var circle = new Kinetic.Circle({
@@ -196,6 +197,17 @@
 			fill: 'red',
 			stroke: 'black',
 			strokeWidth: 2
+		});
+		circle.on('click', function clickedCircle (e) {
+			console.log('Destroying ball', ball);
+			ball.shape.destroy();
+			var removedBall = self.qt.remove(ball);
+			if (removedBall === ball) {
+				console.log('Remove success');
+			}
+
+			// Redraw
+			self.ballsGroup.draw();
 		});
 		ball.shape = circle;
 

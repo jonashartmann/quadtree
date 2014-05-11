@@ -114,7 +114,11 @@
 		this.reindexTree();
 	};
 
-	QuadTree.prototype.reindexTree = function reindexTree() {
+	QuadTree.prototype.reindexTree = function reindexTree(fullReindex) {
+		if (fullReindex) {
+			// Sum up children and delete nodes, usually called after removal
+		}
+
 		// create a copy of the items list
 		var notIndexedItems = this.items.slice(0);
 		// remove all items from the tree
@@ -130,24 +134,28 @@
 	 * It uses object equality (===)
 	 *
 	 * @param object item - item to be removed from the tree
-	 * @return Returns the item if it was found or null
 	 */
 	QuadTree.prototype.remove = function(item) {
 		var index = this.getNodeIndex(item);
 
 		if (index !== -1 && this.nodes[index]) {
 			// Item is found in a child tree, remove it from there
-			return this.nodes[index].remove(item);
+			var childSize = this.nodes[index].remove(item);
+			if (childSize + this.items.length < MAX_ITEMS) {
+				this.reindexTree(true);
+			}
+			return this.items.length;
 		} else {
 			var i;
 			for (i = 0; i < this.items.length; i++) {
 				if (this.items[i] === item) {
-					return this.items.splice(i, 1);
+					this.items.splice(i, 1);
+					return this.items.length;
 				}
 			}
 		}
 
-		return null;
+		return this.items.length;
 	};
 
 	/**

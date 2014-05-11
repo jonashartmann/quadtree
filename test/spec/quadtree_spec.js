@@ -482,21 +482,97 @@ describe("QuadTree", function() {
     });
   });
 
-  it("should correctly remove an item", function () {
-    var item = {
-      id: 'notfit',
-      x: 45,
-      y: 45,
-      width: 10,
-      height: 10
-    };
-    tree.insert(item);
+  describe("on removal ", function () {
+    beforeEach(function () {
+      tree = new QuadTree({
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100
+      }, 2);
+      for (var i = 0; i < 2; i++) {
+        for (var j = 0; j < 1; j++) {
+          tree.insert({
+            id: i + '' + j,
+            x: i*55,
+            y: j*55,
+            width: 10,
+            height: 10
+          });
+          tree.insert({
+            id: i + '' + j + '2',
+            x: i*55 + 1,
+            y: j*55 + 1,
+            width: 10,
+            height: 10
+          });
+        }
+      }
 
-    expect(tree.items.length).toBe(1);
+      expect(tree.nodes.length).toBe(4);
+      expect(tree.nodes[0].items.length).toBe(2);
+    });
 
-    tree.remove(item);
 
-    expect(tree.items.length).toBe(0);
+    it("should remove an item from root", function () {
+      var item = {
+        id: 'notfit',
+        x: 45,
+        y: 45,
+        width: 10,
+        height: 10
+      };
+      tree.insert(item);
+      expect(tree.items.length).toBe(1);
+      tree.remove(item);
+      expect(tree.items.length).toBe(0);
+    });
+
+    it("should remove an item from child", function() {
+      var item = {
+        x: 55,
+        y: 55,
+        width: 10,
+        height: 10
+      };
+      // debugger;
+      tree.insert(item);
+      expect(tree.nodes[3].items.length).toBe(1);
+      tree.remove(item);
+      expect(tree.nodes[3].items.length).toBe(0);
+    });
+
+    it("should reindex the tree when necessary", function() {
+      var item = {
+        x: 10,
+        y: 0,
+        width: 10,
+        height: 10
+      };
+      var item2 = {
+        x: 24,
+        y: 0,
+        width: 10,
+        height: 10
+      };
+      tree.insert(item);
+      tree.insert(item2);
+      expect(tree.nodes[0].nodes.length).toBe(4);
+      expect(tree.nodes[0].nodes[0].items.length).toBe(3);
+
+      spyOn(tree, 'reindexTree');
+      spyOn(tree.nodes[0], 'reindexTree');
+      tree.remove(item);
+      expect(tree.reindexTree).not.toHaveBeenCalled();
+      // debugger;
+      expect(tree.nodes[0].reindexTree).not.toHaveBeenCalled();
+      expect(tree.nodes[0].nodes[0].items.length).toBe(1);
+      tree.remove(item2);
+      expect(tree.reindexTree).not.toHaveBeenCalled();
+      expect(tree.nodes[0].reindexTree).toHaveBeenCalledWith(true);
+      expect(tree.nodes[0].nodes.length).toBe(0);
+      expect(tree.nodes[0].items.length).toBe(2);
+    });
   });
 
   //demonstrates use of expected exceptions
