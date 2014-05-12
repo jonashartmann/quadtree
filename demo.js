@@ -84,7 +84,8 @@
 				self.addRandomPoints(10, x, y);
 			}
 			if (balls) {
-				self.addRandomBalls(10, x, y);
+				// self.addRandomBalls(10, x, y);
+				self.addBall(x, y);
 			}
 		});
 		layer.add(qtShape);
